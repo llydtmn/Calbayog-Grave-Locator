@@ -667,27 +667,6 @@ export function SettingsPage() {
 
         <div>
           <div className="card settings-section">
-            <h3>Notification Preferences</h3>
-            {form && [
-              ['Email notifications', 'emailNotifications'],
-              ['SMS notifications', 'smsNotifications'],
-              ['Memorial submission alerts', 'memorialAlerts'],
-              ['New user registration alerts', 'newUserAlerts'],
-              ['System alerts', 'systemAlerts'],
-            ].map(([label, k]) => (
-              <div key={k} className="settings-row">
-                <span style={{ fontSize: 13, color: 'var(--charcoal)' }}>{label}</span>
-                <div
-                  className={`toggle-switch ${form[k] ? '' : 'off'}`}
-                  role="switch" aria-checked={!!form[k]} aria-label={label} tabIndex={0}
-                  onClick={() => toggle(k)}
-                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(k) } }}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="card settings-section" style={{ marginTop: 18 }}>
             <h3>Admin Staff</h3>
             {!loading && staff.map(a => (
               <div key={a.id} className="settings-row">
