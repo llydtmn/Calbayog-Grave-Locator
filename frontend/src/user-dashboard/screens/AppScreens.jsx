@@ -392,7 +392,6 @@ export function ProfileScreen({ onNavigate, onBack, onLogout, modal }) {
       { id:'edit-profile', title:t('profile.edit'), sub:t('profile.editSub'), icon:ICONS.edit },
       { id:'my-reservations', title:t('profile.reservations'), sub:t('profile.reservationsSub'), icon:ICONS.reservations },
       { id:'manage-password', title:t('profile.password'), sub:t('profile.passwordSub'), icon:ICONS.password },
-      { id:'notifications', title:t('profile.notifications'), sub:t('profile.notificationsSub'), icon:ICONS.bell },
     ]},
     { label: t('profile.preferences'), items: [
       { id:'language', title:t('profile.language'), sub:langLabel, icon:ICONS.globe },
