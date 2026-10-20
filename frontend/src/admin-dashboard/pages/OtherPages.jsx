@@ -43,6 +43,19 @@ export function UsersPage() {
     (!search || `${u.name} ${u.email}`.toLowerCase().includes(search.toLowerCase()))
   )
 
+  // Users → CSV (only the users matching the current search/filter).
+  const exportUsers = () => {
+    const stamp = new Date().toISOString().slice(0, 10)
+    downloadCsv(`gravelocator-users-${stamp}.csv`, [
+      ['User ID', 'Full Name', 'Email', 'Phone', 'Role', 'Joined', 'Last Active', 'Status'],
+      ...filtered.map((u) => [
+        u.id, u.name, u.email, u.phone, u.role || 'user', u.joined || '',
+        u.lastActive ? new Date(u.lastActive).toLocaleString() : 'Never',
+        (USER_STATUS_META[u.status] || {}).label || u.status,
+      ]),
+    ])
+  }
+
   // Deleting a user also deletes everything they own (see api.deleteUser).
   const removeUser = (u) => confirmAction({
     title: 'Delete user account?',
@@ -69,7 +82,11 @@ export function UsersPage() {
             <option key={key} value={key}>{meta.label} ({counts[key] || 0})</option>
           ))}
         </select>
-        <button className="btn btn-outline btn-sm" style={{ marginLeft: 'auto' }}>Export CSV</button>
+        <button
+          className="btn btn-outline btn-sm" style={{ marginLeft: 'auto' }}
+          onClick={exportUsers} disabled={!filtered.length}
+          title="Download the users shown below as a CSV file (opens in Excel)"
+        >Export CSV</button>
       </div>
       <div className="card">
         <div className="table-wrap">
@@ -96,7 +113,7 @@ export function UsersPage() {
                     <td><span className={`badge ${meta.badge}`}>{u.status === 'online' && <span className="online-dot" />}{meta.label}</span></td>
                     <td><div className="action-cell">
                       <button className="btn btn-ghost btn-xs" onClick={() => openModal('modal-edituser', u)}>Edit</button>
-                      <button className="btn btn-outline btn-xs">View</button>
+                      <button className="btn btn-outline btn-xs" onClick={() => openModal('modal-viewuser', u)}>View</button>
                       <button
                         className="btn btn-danger btn-xs"
                         onClick={() => removeUser(u)}
