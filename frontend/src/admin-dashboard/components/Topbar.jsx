@@ -40,15 +40,6 @@ export default function Topbar() {
           <input style={{ background: 'none', border: 'none', outline: 'none', fontFamily: 'var(--ff-b)', fontSize: 13, color: 'var(--charcoal)', width: 200 }} placeholder="Quick search…"/>
         </div>
 
-        {/* Notification bell */}
-        <button onClick={() => setActivePage('notifications')} aria-label="Notifications" style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid var(--lgray)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dgray)" strokeWidth="2">
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 01-3.46 0"/>
-          </svg>
-          <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, background: 'var(--rose)', borderRadius: '50%', border: '2px solid #fff' }}/>
-        </button>
-
         {/* Settings */}
         <button onClick={() => setActivePage('settings')} aria-label="Settings" style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid var(--lgray)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dgray)" strokeWidth="2">
