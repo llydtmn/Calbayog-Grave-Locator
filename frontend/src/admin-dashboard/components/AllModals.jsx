@@ -271,7 +271,7 @@ function UserFormModal({ id, title, subtitle }) {
   const submit = async () => {
     setTried(true)
     if (hasErrors(errors)) return
-    const clean = { ...form, name: form.name.trim(), email: form.email.trim().toLowerCase(), phone: form.phone.trim() }
+    const clean = { name: form.name.trim(), email: form.email.trim().toLowerCase(), phone: form.phone.trim() }
     setSaving(true)
     const ok = await runAction(
       () => (record ? api.updateUser(record.id, clean) : api.createUser(clean)),
@@ -291,8 +291,14 @@ function UserFormModal({ id, title, subtitle }) {
         </div>
         <div className="modal-field">
           <label>Email</label>
-          <input type="email" value={form.email} onChange={set('email')} onBlur={touch('email')} placeholder="user@email.com" maxLength={254} style={invalidStyle(err('email'))} />
+          <input
+            type="email" value={form.email} onChange={set('email')} onBlur={touch('email')}
+            placeholder="user@email.com" maxLength={254}
+            disabled={!!record} title={record ? 'The email is the user\'s login, so only the user can change it.' : undefined}
+            style={invalidStyle(err('email'), record ? { opacity: 0.6 } : undefined)}
+          />
           <FieldError msg={err('email')} />
+          {record && <small style={{ display: 'block', fontSize: 11, color: 'var(--dgray)', marginTop: 4 }}>Login email — can't be changed here.</small>}
         </div>
       </div>
       <div className="modal-row">
@@ -301,12 +307,20 @@ function UserFormModal({ id, title, subtitle }) {
           <input inputMode="tel" value={form.phone} onChange={set('phone', onlyPhoneChars)} onBlur={touch('phone')} placeholder="0917 123 4567" style={invalidStyle(err('phone'))} />
           <FieldError msg={err('phone')} />
         </div>
-        <div className="modal-field">
-          <label>Status</label>
-          <select value={form.status} onChange={set('status')}>
-            {Object.values(USER_STATUS).map(s => <option key={s} value={s}>{s === USER_STATUS.ACTIVE ? 'Active' : 'Inactive'}</option>)}
-          </select>
-        </div>
+        {record && (
+          <div className="modal-field">
+            <label>Status</label>
+            {/* Worked out automatically from the user's activity — not editable. */}
+            <div style={{ paddingTop: 6 }}>
+              <span className={`badge ${(USER_STATUS_META[record.status] || USER_STATUS_META[USER_STATUS.INACTIVE]).badge}`}>
+                {(USER_STATUS_META[record.status] || {}).label || record.status || 'Inactive'}
+              </span>
+            </div>
+            <small style={{ display: 'block', fontSize: 11, color: 'var(--dgray)', marginTop: 6 }}>
+              Set automatically: Online (using the app now), Active (last 30 days), Inactive, Unverified (email not confirmed) or Suspended.
+            </small>
+          </div>
+        )}
       </div>
       <div className="modal-actions">
         <button className="btn btn-outline" onClick={closeModal} disabled={saving}>Cancel</button>
