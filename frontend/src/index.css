@@ -1,0 +1,24 @@
+/* Shared by both dashboards — keep this tiny. Each dashboard brings its own
+   styles (admin-dashboard/index.css + App.css, user-dashboard/MobileApp.css). */
+.gl-boot {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: 600 14px/1.4 system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: #0369A1;
+  background: #F7FBFE;
+}
+.gl-boot-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0EA5E9;
+  animation: gl-boot-pulse 1s ease-in-out infinite;
+}
+@keyframes gl-boot-pulse { 50% { opacity: .3; transform: scale(.7); } }
+@media (prefers-color-scheme: dark) {
+  .gl-boot { background: #0B1620; color: #7DD3FC; }
+}
