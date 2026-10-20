@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext'
 import { usePrefs } from '../context/PrefsContext'
 import { LANGUAGES } from '../i18n'
 import * as api from '../api'
+import PrivacyNoticeModal from '../components/PrivacyNotice'
 import {
   useValidation, hasErrors, FieldError, invalidStyle, todayISO,
   nameError, phoneError, integerError, dateError, dateOrderError, textError,
@@ -184,6 +185,7 @@ export function MemorialsScreen({ onNavigate, onBack, modal }) {
 
 // ── ProfileScreen ────────────────────────────────────────────────────────────
 const ICONS = {
+  shield: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>,
   edit: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
   reservations: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>,
   password: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
@@ -396,10 +398,13 @@ export function ProfileScreen({ onNavigate, onBack, onLogout, modal }) {
       { id:'language', title:t('profile.language'), sub:langLabel, icon:ICONS.globe },
       { id:'theme', title:t('profile.theme'), sub:themeLabel, icon:theme === 'dark' ? ICONS.moon : ICONS.sun },
     ]},
+    { label: 'Privacy', items: [
+      { id:'privacy', title:'Privacy Notice', sub:'What data we collect, why, and your rights', icon:ICONS.shield },
+    ]},
   ]
 
   function handleItemClick(id) {
-    if (['edit-profile', 'manage-password', 'language', 'theme'].includes(id)) {
+    if (['edit-profile', 'manage-password', 'language', 'theme', 'privacy'].includes(id)) {
       onNavigate('profile', {}, { modal: id })
     } else if (id === 'my-reservations') {
       onNavigate('my-reservations')
@@ -448,6 +453,7 @@ export function ProfileScreen({ onNavigate, onBack, onLogout, modal }) {
       {openModal === 'manage-password' && <ManagePasswordModal onClose={() => onBack('profile')} />}
       {openModal === 'language' && <LanguageModal onClose={() => onBack('profile')} />}
       {openModal === 'theme' && <ThemeModal onClose={() => onBack('profile')} />}
+      {openModal === 'privacy' && <PrivacyNoticeModal onClose={() => onBack('profile')} />}
     </div>
   )
 }

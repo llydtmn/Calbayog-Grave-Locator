@@ -135,10 +135,10 @@ export function AppProvider({ children }) {
         if (session) setUser(toUser(session.user))
       }
     },
-    signUp: async ({ email, password, fullName, phone }) => {
+    signUp: async ({ email, password, fullName, phone, privacyVersion }) => {
       // Return whether a real session came back — if email confirmation is
       // required, Supabase creates the account but does NOT log them in yet.
-      const data = await api.signUp({ email, password, fullName, phone })
+      const data = await api.signUp({ email, password, fullName, phone, privacyVersion })
       if (data?.session?.user) setUser(toUser(data.session.user))
       return { confirmedImmediately: !!data?.session }
     },

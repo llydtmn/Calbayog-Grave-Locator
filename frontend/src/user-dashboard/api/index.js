@@ -225,10 +225,16 @@ export async function createMemorial(payload) {
 }
 
 // ── Auth (Supabase Auth — only active when USE_REMOTE is on) ────────────────
-export async function signUp({ email, password, fullName, phone }) {
+// privacyVersion: the Privacy Notice version the user agreed to. It's saved
+// with the account (auth user_metadata) together with the time they agreed,
+// as proof of consent under the Data Privacy Act (RA 10173).
+export async function signUp({ email, password, fullName, phone, privacyVersion }) {
+  const consent = privacyVersion
+    ? { privacy_consent_version: privacyVersion, privacy_consent_at: new Date().toISOString() }
+    : {}
   const { data, error } = await supabase.auth.signUp({
     email, password,
-    options: { data: { full_name: fullName, phone } },
+    options: { data: { full_name: fullName, phone, ...consent } },
   })
   if (error) throw error
   return data

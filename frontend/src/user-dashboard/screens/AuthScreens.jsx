@@ -35,6 +35,7 @@ const slides = [
 
 import { useState } from 'react'
 import ForgotPassword from '../components/ForgotPassword'
+import PrivacyNoticeModal, { PRIVACY_VERSION } from '../components/PrivacyNotice'
 import {
   useValidation, hasErrors, FieldError, invalidStyle,
   nameError, emailError, phoneError, passwordError, PASSWORD_RULES, onlyPhoneChars,
@@ -84,6 +85,8 @@ export function LoginScreen({ onLogin }) {
   const [resendBusy, setResendBusy] = useState(false)
   const [busy, setBusy] = useState(false)
   const [forgot, setForgot] = useState(false)
+  const [agreed, setAgreed] = useState(false)          // Privacy Notice consent (sign-up)
+  const [showPrivacy, setShowPrivacy] = useState(false)
   const { signIn, signUp, resendConfirmation, verifySignupCode } = useApp()
   const { touch, reset, setTried, shown } = useValidation()
 
@@ -95,6 +98,7 @@ export function LoginScreen({ onLogin }) {
     email: emailError(email),
     phone: isSignup ? phoneError(phone, { label: 'Phone number', required: true }) : '',
     password: isSignup ? passwordError(password) : (password ? '' : 'Enter your password.'),
+    consent: isSignup && !agreed ? 'Please read and agree to the Privacy Notice to create an account.' : '',
   }
   const err = shown(errors)
 
@@ -127,7 +131,7 @@ export function LoginScreen({ onLogin }) {
         await signIn({ email: cleanEmail, password })
         onLogin()
       } else if (tab === 'signup') {
-        const { confirmedImmediately } = await signUp({ email: cleanEmail, password, fullName: fullName.trim(), phone: phone.trim() })
+        const { confirmedImmediately } = await signUp({ email: cleanEmail, password, fullName: fullName.trim(), phone: phone.trim(), privacyVersion: PRIVACY_VERSION })
         if (confirmedImmediately) {
           onLogin()
         } else {
@@ -265,6 +269,26 @@ export function LoginScreen({ onLogin }) {
                   })}
                 </ul>
               )}
+              {tab==='signup' && (
+                <div>
+                  <label style={{ display:'flex', gap:8, alignItems:'flex-start', fontSize:13, color:'var(--slate, #334155)', cursor:'pointer' }}>
+                    <input
+                      type="checkbox" checked={agreed}
+                      onChange={(e)=>setAgreed(e.target.checked)} onBlur={touch('consent')}
+                      style={{ width:18, height:18, marginTop:1, flexShrink:0, accentColor:'#0284C7' }}
+                    />
+                    <span>
+                      I have read and agree to the{' '}
+                      <button
+                        type="button" onClick={()=>setShowPrivacy(true)}
+                        style={{ background:'none', border:'none', padding:0, color:'#0284C7', textDecoration:'underline', cursor:'pointer', font:'inherit' }}
+                      >Privacy Notice</button>
+                      {' '}and allow GraveLocator to process my personal information for lot reservations and payments.
+                    </span>
+                  </label>
+                  <FieldError msg={err('consent')} />
+                </div>
+              )}
               {error && <p style={{ color:'#DC2626', fontSize:13, margin:0 }}>{error}</p>}
               {showResend && (
                 <button
@@ -285,6 +309,12 @@ export function LoginScreen({ onLogin }) {
           )}
         </div>
       </div>
+      {showPrivacy && (
+        <PrivacyNoticeModal
+          onClose={() => setShowPrivacy(false)}
+          onAgree={() => { setAgreed(true); setShowPrivacy(false) }}
+        />
+      )}
     </div>
   )
 }

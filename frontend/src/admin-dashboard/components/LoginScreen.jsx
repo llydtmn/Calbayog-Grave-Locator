@@ -129,11 +129,6 @@ export default function LoginScreen() {
             <FieldError msg={err('password')} />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <input type="checkbox" style={{ width: 16, height: 16, accentColor: 'var(--sage)' }}/>
-            <span style={{ fontSize: 13, color: 'var(--dgray)' }}>Enable two-factor authentication</span>
-          </div>
-
           {(localError || authError) && (
             <p style={{ color: '#DC2626', fontSize: 13, marginBottom: 16 }}>{localError || authError}</p>
           )}
