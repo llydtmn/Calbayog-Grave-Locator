@@ -124,6 +124,29 @@ export async function getLot(blockId, lotNo) {
   return local(() => getLotsForBlock(blockId).find((l) => l.lotNo === Number(lotNo)) || null)
 }
 
+// Supabase/PostgREST returns at most 1,000 rows per request, so anything that
+// needs EVERY lot (reports, dashboard totals) has to read it page by page.
+// `build()` must return a fresh query with a stable order (pages must not overlap).
+async function fetchAllRows(build, pageSize = 1000) {
+  const all = []
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await build().range(from, from + pageSize - 1)
+    if (error) throw error
+    all.push(...data)
+    if (data.length < pageSize) break
+  }
+  return all
+}
+
+// Every digitized lot in every block — used by Reports & Analytics.
+export async function getAllLots() {
+  if (USE_REMOTE) {
+    const rows = await fetchAllRows(() => supabase.from('lots').select('*').order('block_id').order('id'))
+    return rows.map(lotFromRow)
+  }
+  return local(() => BLOCKS.flatMap((b) => getLotsForBlock(b.id)))
+}
+
 // Admin-only: change a lot's map status directly (e.g. marking it sold).
 // `intermentCount` is optional — pass it when status === STATUS.WITH_INTERMENT
 // so the number of burials in the lot is recorded alongside the status.
@@ -302,11 +325,10 @@ export function getLegend() {
 export function getDashboardMetrics() {
   if (USE_REMOTE) {
     return (async () => {
-      const [{ data: lots, error: lotsError }, { count: totalUsers, error: usersError }] = await Promise.all([
-        supabase.from('lots').select('status'),
+      const [lots, { count: totalUsers, error: usersError }] = await Promise.all([
+        fetchAllRows(() => supabase.from('lots').select('status').order('id')),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
       ])
-      if (lotsError) throw lotsError
       if (usersError) throw usersError
 
       const available = lots.filter((l) => l.status === STATUS.AVAILABLE).length
@@ -332,12 +354,11 @@ export function getDashboardMetrics() {
 export function getBlockOccupancy() {
   if (USE_REMOTE) {
     return (async () => {
-      const [{ data: blocks, error: blocksError }, { data: lots, error: lotsError }] = await Promise.all([
+      const [{ data: blocks, error: blocksError }, lots] = await Promise.all([
         supabase.from('blocks').select('id, name'),
-        supabase.from('lots').select('block_id, status'),
+        fetchAllRows(() => supabase.from('lots').select('block_id, status').order('id')),
       ])
       if (blocksError) throw blocksError
-      if (lotsError) throw lotsError
 
       return blocks
         .map((b) => {

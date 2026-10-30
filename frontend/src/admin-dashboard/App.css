@@ -691,11 +691,45 @@ tbody td { padding: 12px 14px; font-size: 13.5px; color: var(--charcoal); vertic
   .rp-bar-val { display: none; }
 }
 
+/* ── Reports hub: toolbar, summary tables, stacked bars, pager, print heading ─ */
+.rp-toolbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.rp-toolbar h3 { font-family: var(--ff-d); font-size: 19px; color: var(--charcoal); margin-bottom: 3px; }
+.rp-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rp-switch { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--dgray); cursor: pointer; }
+.rp-table th, .rp-table td { white-space: nowrap; }
+.rp-table .rp-num, .rp-num { text-align: right; font-variant-numeric: tabular-nums; }
+.rp-table tfoot td { font-weight: 700; background: var(--cream); border-top: 2px solid var(--lgray); }
+.rp-cell-btn { background: none; border: 0; font: inherit; font-weight: 700; color: var(--sage); cursor: pointer; padding: 2px 8px; border-radius: 6px; }
+.rp-cell-btn:hover { background: var(--pgreen); text-decoration: underline; }
+.rp-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid; font-size: 11px; font-weight: 700; }
+.rp-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--dgray); }
+.rp-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.rp-sb-row { display: grid; grid-template-columns: 90px minmax(0, 1fr) 56px; gap: 12px; align-items: center; margin-bottom: 10px; }
+.rp-sb-name { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+.rp-sb-total { font-size: 12px; color: var(--dgray); text-align: right; font-variant-numeric: tabular-nums; }
+.rp-sb-track { display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--lgray); }
+.rp-sb-seg { height: 100%; }
+.rp-pager { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; color: var(--dgray); }
+.rp-print-head { margin-bottom: 14px; }
+.rp-print-head h2 { font-family: var(--ff-d); font-size: 20px; }
+.rp-print-head h3 { font-size: 15px; margin: 2px 0; }
+.rp-print-head p { font-size: 12px; color: var(--dgray); }
+.print-only { display: none; }
+@media (max-width: 900px) {
+  .rp-sb-row { grid-template-columns: 70px minmax(0, 1fr) 46px; }
+}
+
 /* Print / Save as PDF: only the report content */
 @media print {
   .admin-sidebar, .admin-topbar, .no-print { display: none !important; }
   .admin-main { margin: 0 !important; padding: 0 !important; }
   .reports-page .card { box-shadow: none; break-inside: avoid; }
+  .print-only { display: block !important; }
+  .reports-page .rp-table th, .reports-page .rp-table td { white-space: normal; padding: 6px 8px; font-size: 11px; }
+  .reports-page .rp-table thead { display: table-header-group; }
+  .reports-page .rp-table tr { break-inside: avoid; }
+  .reports-page .card:has(.rp-table) { break-inside: auto; }
+  .reports-page .rp-sb-track, .reports-page .rp-dot, .reports-page .rp-pill, .reports-page .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 /* ── User Management: real activity status ─────────────────────────────────── */
 .badge-online { background: #DBEAFE; color: #1D4ED8; display: inline-flex; align-items: center; gap: 5px; }

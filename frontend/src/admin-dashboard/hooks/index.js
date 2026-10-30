@@ -71,6 +71,12 @@ export function useLots(blockId) {
   return { lots: data || [], loading, error, reload }
 }
 
+// Every lot in every block (Reports & Analytics).
+export function useAllLots() {
+  const { data, loading, error, reload } = useAsync(() => api.getAllLots(), [])
+  return { lots: data || [], loading, error, reload }
+}
+
 export function usePricing() {
   const { data, loading, error } = useAsync(() => api.getPricing(), [])
   return { pricing: data, loading, error }
