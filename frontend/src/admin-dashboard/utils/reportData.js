@@ -86,9 +86,12 @@ export const lotDeceased = (lot) => {
 }
 
 // status filter values: 'all' | 'g:<group>' | 's:<status>'
-export function filterLots(lots, { blockId = 'all', classification = 'all', status = 'all', query = '' } = {}) {
+// `from` / `to` + `dateOf(lot)` add a date-range filter (see lotStatusDate below).
+export function filterLots(lots, { blockId = 'all', classification = 'all', status = 'all', query = '', from = '', to = '', dateOf = null } = {}) {
   const q = query.trim().toLowerCase()
+  const byDate = !!(dateOf && (from || to))
   return lots.filter((l) => {
+    if (byDate && !inRange(dateOf(l), from, to)) return false
     if (blockId !== 'all' && l.blockId !== blockId) return false
     if (classification !== 'all' && l.classification !== classification) return false
     if (status.startsWith('g:') && groupOf(l.status) !== status.slice(2)) return false
@@ -134,6 +137,44 @@ export function inRange(date, from, to) {
   if (!date) return false
   const d = String(date).slice(0, 10)
   return !(from && d < from) && !(to && d > to)
+}
+
+// ── Lot status date ──────────────────────────────────────────────────────────
+// The lots table does not store when a status changed, so the date a lot "got"
+// its status is taken from the records the office already keeps:
+//   Occupied (sold / with interment) → latest date of burial (else date of death)
+//   Reserved                         → date of its active reservation
+//   Available / Other                → no date
+// A lot with no such record has no date, so it only shows while no date range is set.
+const ACTIVE_RESERVATION = ['pending', 'confirmed', 'completed']
+
+// lot id (or "blockId|lotNo") → latest active reservation date, from the reservations list.
+export function reservationDateByLot(reservations) {
+  const map = new Map()
+  for (const r of reservations || []) {
+    if (!ACTIVE_RESERVATION.includes(r.status)) continue
+    const d = toLocalDate(r.reservationDate || r.createdAt)
+    if (!d) continue
+    for (const key of [r.lotId, r.blockId != null && r.lotNo != null ? `${r.blockId}|${r.lotNo}` : null]) {
+      if (key != null && (!map.has(key) || d > map.get(key))) map.set(key, d)
+    }
+  }
+  return map
+}
+
+const latest = (dates) => dates.filter(Boolean).sort().pop() || ''
+
+// 'YYYY-MM-DD' or '' when the lot has no dated record.
+export function lotStatusDate(lot, reservationDates) {
+  const g = groupOf(lot.status)
+  if (g === GROUP.OCCUPIED) {
+    const recs = lotRecords(lot)
+    return latest(recs.map((r) => toLocalDate(r.burialDate))) || latest(recs.map((r) => toLocalDate(r.deathDate)))
+  }
+  if (g === GROUP.RESERVED) {
+    return reservationDates?.get(lot.id) || reservationDates?.get(`${lot.blockId}|${lot.lotNo}`) || ''
+  }
+  return ''
 }
 
 // Whole months from an ISO date up to `now` (0 if in the future).

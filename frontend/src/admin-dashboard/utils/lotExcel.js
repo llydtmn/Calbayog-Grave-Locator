@@ -8,11 +8,11 @@
 // xlsx is loaded on demand so it doesn't slow down the admin page.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const LOT_HEADERS = ['Block', 'Lot No', 'Classification', 'Status', 'Interments', 'Name of deceased']
-const LOT_WIDTHS = [14, 9, 18, 18, 12, 55]
+const LOT_HEADERS = ['Block', 'Lot No', 'Classification', 'Status', 'Status date', 'Interments', 'Name of deceased']
+const LOT_WIDTHS = [14, 9, 18, 18, 14, 12, 55]
 const PESO = '"₱"#,##0'
 
-const lotRow = (l) => [l.block, l.lotNo === '' ? '' : l.lotNo, l.classification, l.status, l.interments, l.deceased]
+const lotRow = (l) => [l.block, l.lotNo === '' ? '' : l.lotNo, l.classification, l.status, l.statusDate || '', l.interments, l.deceased]
 
 // Excel sheet names: max 31 chars, none of  \ / ? * [ ] :  and unique.
 function sheetName(raw, used) {
@@ -27,7 +27,7 @@ export async function downloadLotListExcel({
   filename,        // 'gravelocator-lot-report-2026-10-30.xlsx'
   generatedOn,     // 'October 30, 2026'
   filtersText,     // '' when no filters are active
-  lots,            // [{ block, lotNo, classification, status, interments, deceased, group }] — the filtered list, already sorted
+  lots,            // [{ block, lotNo, classification, status, statusDate, interments, deceased, group }] — the filtered list, already sorted
   blockRows,       // [{ name, total, available, occupied, reserved, other, occupancyRate, interments }] (last row = All blocks)
   classRows,       // [{ name, total, available, occupied, reserved, other, occupancyRate, price, availableValue }]
   statusRows,      // [{ label, count }]
