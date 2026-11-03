@@ -3,7 +3,7 @@ import { useBlocks, usePricing } from '../hooks'
 import { useApp } from '../context/AppContext'
 import { CLASSIFICATION } from '../config/constants'
 import { statusLabel, statusMeta, isSellable } from '../config/status'
-import { peso, percent, intermentMarks } from '../utils/format'
+import { peso, intermentMarks } from '../utils/format'
 import { addRecentlyViewed } from '../hooks/useRecentlyViewed'
 import { getLot, searchDeceased, deceasedRecordsOf } from '../api'
 
@@ -186,11 +186,10 @@ export function SearchScreen({ onNavigate, onBack }) {
 }
 
 // ── PlotDetailScreen ─────────────────────────────────────────────────────────
-// Shows a lot's block, lawn, classification, status and reference pricing, and
-// lets the user locate it on the map. Lot context comes from the map
-// drill-down. Available lots also offer a "Reserve Lot" action that hands the
-// lot off to the reservation flow (frontend-only demo — see
-// BACKEND_INTEGRATION.md).
+// Shows a lot's block, lawn, classification and status, and lets the user
+// locate it on the map. Lot context comes from the map drill-down. Available
+// lots also offer a "Reserve Lot" action that hands the lot off to the
+// reservation flow (frontend-only demo — see BACKEND_INTEGRATION.md).
 export function PlotDetailScreen({ onNavigate, onBack, routeLot }) {
   const { activeLot, setActiveLot, setActiveBlockId, user, userKey } = useApp()
   const { blocks } = useBlocks()
@@ -232,9 +231,6 @@ export function PlotDetailScreen({ onNavigate, onBack, routeLot }) {
   const meta = statusMeta(shown.status)
   const marks = intermentMarks(shown.intermentCount)
   const p = pricing?.installment?.[shown.classification] || null
-  const interest = pricing?.interest || { '1yr': 0.18, '2yr': 0.24, '3yr': 0.34 }
-
-  const planRows = [['1yr', '1 Year'], ['2yr', '2 Years'], ['3yr', '3 Years']]
 
   useEffect(() => {
     if (routeActiveLot && activeLot !== routeActiveLot) {
@@ -317,34 +313,6 @@ export function PlotDetailScreen({ onNavigate, onBack, routeLot }) {
             ))}
           </div>
         )}
-
-        {/* Pricing — reference only (the office handles all transactions). */}
-        <div className="card" style={{ marginBottom:14 }}>
-          <p className="section-label" style={{ margin:'0 0 4px' }}>Pricing (for reference)</p>
-          <p className="f12 c-stone" style={{ margin:'0 0 10px' }}>Indicative figures only. Contact the park office to transact.</p>
-          {p ? (
-            <>
-              {[
-                ['Total Price', peso(p.totalPrice)],
-                ['MCF', peso(p.mcf)],
-                ['30% Down Payment', peso(p.downPayment30)],
-                ['Total Cash Outlay', peso(p.cashOutlay)],
-                ['Balance', peso(p.balance)],
-              ].map(([l,v]) => (
-                <div key={l} className="fee-row"><span className="fee-lbl">{l}</span><span className="fee-val">{v}</span></div>
-              ))}
-              <div className="fee-row total" style={{ borderTop:'1px solid var(--lgray)', marginTop:6, paddingTop:8 }}>
-                <span className="fee-lbl fw7">Installment (monthly)</span><span className="fee-val">&nbsp;</span>
-              </div>
-              {planRows.map(([key,label]) => (
-                <div key={key} className="fee-row">
-                  <span className="fee-lbl">{label} <span style={{ color:'var(--gold)', fontWeight:700 }}>({percent(interest[key])})</span></span>
-                  <span className="fee-val">{peso(p.monthly[key])}/mo</span>
-                </div>
-              ))}
-            </>
-          ) : <p className="f13 c-stone">No reference pricing for this classification.</p>}
-        </div>
 
         {isSellable(shown.status) && (
           <button className="btn btn-gold btn-full" style={{ marginBottom: 10 }} onClick={() => onNavigate('reserve-form', { activeLot: shown })}>
